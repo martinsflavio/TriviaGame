@@ -1,0 +1,28 @@
+/*			centering boxes
+.start, .questions {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+   bring your own prefixes 
+  transform: translate(-50%, -50%);
+}
+.jumbotron{padding: 5px;}*/
+
+/*------------------------------------
+Start Box
+------------------------------------*/
+
+
+
+
+/*------------------------------------
+Questions Box
+------------------------------------*/
+/*.questions{display: none;}*/
+
+#quest {margin: 10px; padding: 0;}
+li {
+	list-style-type: none;
+	margin: 10px; 
+}
+ul {margin: 0; padding: 0;}
