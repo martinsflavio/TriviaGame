@@ -1,19 +1,45 @@
-/*Watch ID holder*/
+var quizArr = quizArrConstructor();
+var $quiz = $(".quiz");
+
+// trackers
+var userAnswer = 0;
+var questIndex = 0;
+var answer = "";
+var right = 0; 
+var wrong = 0;
+var not = 0;
+
+//========== watch =========
 var intervalId;
 var watch = {
-  time: 10,
+  time: 3,
 
   start: function() {
     intervalId = setInterval(watch.count, 1000);
   },
   stop: function() {
     clearInterval(intervalId);
-    watch.time = 10;
+    watch.time = 3;
   },
   count: function() {
     watch.time--;
     var converted = watch.timeConverter(watch.time);
     $("#timer").text(converted);
+    //=======================
+    if (watch.time === 0){
+      watch.stop();
+      if(questIndex === quizArr.length - 1){
+        $($quiz).empty();
+        scoreBuilder(right, wrong, not);
+      }else{
+        not++;
+        watch.stop();
+        $($quiz).empty();
+        questIndex++;
+        questionBuilder(quizArr[questIndex]);
+      }
+    }
+    //=======================
   },
   timeConverter: function(t) {
     var minutes = Math.floor(t / 60);
@@ -33,22 +59,7 @@ var watch = {
     return minutes + ":" + seconds;
   }
 };
-/*------------------------------------*/
-
-
-var quizArr = quizArrConstructor();
-var $quiz = $(".quiz");
-
-// trackers
-var userAnswer = 0;
-var questIndex = 0;
-var answer = "";
-var right = 0; 
-var wrong = 0;
-var not = 0;
-//  Why right = -1 ?
-//  first time the right is true doesn't count because 
-//  button start is the first right answer.
+//==========================
 //================= Logic ===========================
 
 $(window).load(function(){
@@ -190,7 +201,9 @@ function questionBuilder(qObj){
 
     $(".answer-list").append(answerBtn);
   }
-  watch.start();
+  //===========================
+          watch.start();
+  //===========================
 }
 function scoreBuilder(r,w,m){
   var screen = $("<div class=jumbotron>");
