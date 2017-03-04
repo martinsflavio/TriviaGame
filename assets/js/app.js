@@ -1,6 +1,5 @@
 /*Watch ID holder*/
 var intervalId;
-/*Watch Object*/
 var watch = {
 
   timesUp: false,
@@ -45,151 +44,116 @@ var watch = {
 };
 /*------------------------------------*/
 
-//Question and Anwsers
+
 var quizArr = quizArrConstructor();
-//$$uery to Variables
-var $$ = jQueryVar();
+var $quiz = $(".quiz");
 
 // trackers
-var quiz;
-var awsId = -1;
-var nextQuestion = -1;
+var userAnswer = 0;
+var questIndex = 0;
+var answer = false;
 //================= Logic ===========================
 
 $(window).load(function(){
-  if (nextQuestion === -1){
-    screenSelector("start");  
-  }
   
-  $$.$start.on("click", function(){
-    nextQuestion++;
-    quiz = quizArr[nextQuestion];
-    questionBuilder(quiz);
-    screenSelector("question");
+  startBuilder(quizArr[questIndex]);
+  
+  $($quiz).on("click", ".answer-btn", function(){
+    userAnswer = parseInt($(this).attr("id"));
+    
+    answer = checkanswer(quizArr[questIndex],userAnswer);
+    
+    questIndex++;
+
   });
 
-  //Stores the user Anwser on variable "awsId"
-  $$.$awsList.on("click", ".aws-btn", function(){
-    awsId = parseInt($(this).attr("id"));
-    
-    checkAws(quiz,awsId); 
-    console.log("question checked " + nextQuestion);
-    nextQuestion++;
-    quiz = quizArr[nextQuestion];
-  }); 
-
-
-/*
-  if (trigger){
-
-    if(checkAws(quiz,awsId)){
-      // correto 
-      //carrega porxima pergunta
-    }else{
-      //errado
-      //carrega proxima pergunta
-
-    }    
-  }else{
-    
-    setTimeout(function(){
-
-      //nextQuestion
-
-    },10100);
-  }*/
-
-
-
+  
 });
 
 
 //================= functions =======================
-//------ pass $() elements to variables ------
-function jQueryVar(){
-  var $aws;
-  return{
-    /*Start Screen $() elements*/
-    $start: $("#start"),
-    /*Question Screen $() elements*/ 
-    $aws: $(".aws-btn"),
-    $timer: $("#timer"),
-    $quest: $("#quest"),
-    $awsList: $(".aws-list"),
-    $aws: $aws,
-    /*Score Screen $() elements*/ 
-    $restart: $("#restart"),
-    /*screens*/
-    $startScreen: $(".start"),
-    $questionScreen: $(".question"),
-    $scoreScreen: $(".score"),
-  };
-}
+
 //------ populate the quizArr array with objs questions ------
 function quizArrConstructor(){
-  function questionEntry(question, alternatives, awsIndex){
+  function questionEntry(question, alternatives, answerIndex){
     return{
       question: question,
       alternatives: alternatives,
-      awsIndex: awsIndex
+      answerIndex: answerIndex
     };
   }
 
   var result=[];
   // Add question here
-  result.push(questionEntry("question 01",["resposta1","resposta2","resposta3"],2)); 
+  result.push(questionEntry("Trivia Quiz!",["Start"],0)); 
   result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],1)); 
   result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],2)); 
   result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","resposta4"],4)); 
   //--------------------
   return result;
 }
-//------ Screen Selector ---- parameter: "screen name" --
-function screenSelector(screen){
-  if(screen === "start"){
-    $$.$questionScreen.hide();
-    $$.$scoreScreen.hide();
-    $$.$startScreen.show();    
-  }
-  if(screen === "question"){
-    $$.$startScreen.hide();
-    $$.$scoreScreen.hide();
-    $$.$questionScreen.show();
-  }
-  if(screen === "score"){
-    $$.$startScreen.hide();
-    $$.$questionScreen.hide();
-    $$.$scoreScreen.show();
-  }
-}
-//------ Load Question ---- quizArr[index] -------                          
-function questionBuilder(qObj){
-  /*display question*/
-  $$.$quest.text(qObj.question);
-  /*building buttons with alternatives*/
-  for (var i = 0; i < qObj.alternatives.length; i++){
-    var alternative = qObj.alternatives[i];  
-    var $optionBtn = $("<li>");
-    $optionBtn.append("<a id="+i+" class='aws-btn btn btn-primary btn-lg primay' role='button' href='#'>");
-    $optionBtn.find("#"+i).text(alternative);
-
-    //store the button on the obj
-    $$.$aws = $optionBtn;
-    //display in the screen
-    $$.$awsList.append($$.$aws);
-  }
-}
-//---------------- Check Anwser -------------------
-function checkAws(qObj,userAws){
-  console.log("checkAws");
-  if (userAws === qObj.awsIndex){
+//---------------- Check answerser -------------------
+function checkanswer(qObj,answer){
+  
+  if (answer === qObj.answerIndex){
     console.log("right");
-    
+    return true;
   }else{
     console.log("wrong");
-    
+    return false;
   } 
 }
+//-------------------- Screens -----------------
+function startBuilder(qObj){
+  var startIndex = qObj.alternatives.indexOf("Start");
+  var screen = $("<div class=jumbotron>");
+    screen.append("<h1 class='text-center'>"+qObj.question+"</h1>");
+    screen.append("<p class='p text-center'>");
+    screen.find(".p")
+      .append("<a id="+startIndex+" class='answer-btn btn btn-success btn-lg primay' role='button' href='#'>"+qObj.alternatives+"</a>");
+
+    $quiz.append(screen);
+}
+function questionBuilder(qObj){
+  var screen = $("<div class=jumbotron>");
+    screen.append("<h3 id='timer'>00:00</h3>");
+    screen.append("<div class=' question-box panel panel-default text-center'>");
+    screen.find(".question-box").append("<h2><span id='quest'>Questions here ?</span></h2>");
+    screen.append("<div class='row answer'>");
+    screen.find(".answer").append("<ul class='text-center answer-list'></ul>");
+    $quiz.append(screen);  
+
+
+  /*display question*/
+  $("#quest").text(qObj.question);
+  for (var i = 0; i < qObj.alternatives.length; i++){
+    var alternative = qObj.alternatives[i];  
+    var answerBtn = $("<li>");
+    answerBtn.append("<a id="+i+" class='answer-btn btn btn-primary btn-lg primay' role='button' href='#'>");
+    answerBtn.find("#"+i).text(alternative);
+
+    $(".answer-list").append(answerBtn);
+  }
+}
+function scoreBuilder(){
+  var screen = $("<div class=jumbotron>");
+    screen.append("<div class=' score-box panel panel-default text-center'>");
+    screen.find(".score-box").append("<h2><span id='score'>Score</span></h2>");
+    screen.append("<div class='row score'>");
+    screen.find(".score").append("<ul class='text-center score-list'></ul>");
+    
+    screen.find(".score-list")
+      .append("<li class='score'><p>Correct Answers: </p><span id='right-score'></li>");
+    screen.find(".score-list")
+      .append("<li class='score'><p>Incorrect Answers: </p><span id='wrong-score'></li>");
+    screen.find(".score-list")
+      .append("<li class='score'><p>Unanswered: </p><span id='not-score'></li>");
+
+    $quiz.append(screen);
+}
+//----------------------------------------------
+
+
 
 
 
