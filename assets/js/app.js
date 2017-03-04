@@ -22,7 +22,7 @@ var watch = {
     if (watch.time === 0){
       watch.stop();
     }
-    $$.$timer.text(converted);
+    $("#timer").text(converted);
   },
   timeConverter: function(t) {
     var minutes = Math.floor(t / 60);
@@ -49,12 +49,12 @@ var quizArr = quizArrConstructor();
 var $quiz = $(".quiz");
 
 // trackers
-var userAnswer = -1;
+var userAnswer = 0;
 var questIndex = 0;
 var answer = "";
 var right = -1; 
 var wrong = 0;
-var missed = 0;
+var not = 0;
 //  Why right = -1 ?
 //  first time the right is true doesn't count because 
 //  button start is the first right answer.
@@ -63,10 +63,9 @@ var missed = 0;
 $(window).load(function(){
   
   startBuilder(quizArr[questIndex]);
-  
   $($quiz).on("click", ".answer-btn", function(){
     userAnswer = parseInt($(this).attr("id"));
-    
+  
     answer = checkanswer(quizArr[questIndex],userAnswer);
     
     if(answer === "right" ){
@@ -76,24 +75,38 @@ $(window).load(function(){
       wrong++;
     }
     if (answer === "not" ){
-      missed++;
+      not++;
     }
 
     printAnswer(answer, questIndex);
+    
     setTimeout(function(){ 
-      $($quiz).empty(); 
-
-      questIndex++;
-
-      questionBuilder(quizArr[questIndex]);
-    },2000);
-    
-    
-
-
+      $quiz.empty();
+      // print score
+      if(questIndex === quizArr.length - 1){
+        $($quiz).empty();
+        scoreBuilder(right, wrong, not);
+      }else{
+        questIndex++;
+        questionBuilder(quizArr[questIndex]);
+      }
+      
+    },1000);
   });
 
-  
+  $($quiz).on("click", "#restart", function(){
+    $($quiz).empty();
+    
+    userAnswer = -1;
+    questIndex = 0;
+    answer = "";
+    right = -1; 
+    wrong = 0;
+    not = 0;
+
+    startBuilder(quizArr[questIndex]);
+  });
+
 });
 
 
@@ -112,32 +125,28 @@ function quizArrConstructor(){
   var result=[];
   // Add question here
   result.push(questionEntry("Trivia Quiz!",["Start"],0)); 
-  result.push(questionEntry("question 01",["resposta1","resposta2","resposta3","resposta4"],0)); 
-  result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],0)); 
-  result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],0));
-  result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","resposta4"],0)); 
-  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","resposta4"],3));  
+  result.push(questionEntry("question 01",["correto","resposta2","resposta3","resposta4"],0)); 
+  result.push(questionEntry("question 02",["resposta1","resposta2","correto","resposta4"],2)); 
+  result.push(questionEntry("question 03",["resposta1","correto","resposta3","resposta4"],1));
+  result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","correto"],3)); 
+  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","correto"],3));  
   //--------------------
   return result;
 }
 //---------------------------------------------------
 function checkanswer(qObj,answer){
-  var totalAlternativas = qObj.alternatives.length - 1;
+  var totalAlternativas = qObj.alternatives.length;
 
   // no answer detected
-  if (answer === -1){
-    return "not";
-  }
+
   if (answer === qObj.answerIndex){
     console.log("right");
     return "right";
   }
-  if (answer <= totalAlternativas && answer > 0 ){
-    if (answer !== qObj.answerIndex){
-      console.log("wrong");
-      return "wrong";
-    } 
-  }
+  if (answer !== qObj.answerIndex){
+    console.log("wrong");
+    return "wrong";
+  }   
 }
 //---------------------------------------------------
 function printAnswer(value,qIndex){
@@ -163,8 +172,6 @@ function printAnswer(value,qIndex){
   $ans.empty();
   $(".answer").append(result);
 }
-
-
 //-------------------- Screens ----------------------
 function startBuilder(qObj){
   var startIndex = qObj.alternatives.indexOf("Start");
@@ -197,7 +204,7 @@ function questionBuilder(qObj){
     $(".answer-list").append(answerBtn);
   }
 }
-function scoreBuilder(){
+function scoreBuilder(r,w,m){
   var screen = $("<div class=jumbotron>");
     screen.append("<div class=' score-box panel panel-default text-center'>");
     screen.find(".score-box").append("<h2><span id='score'>Score</span></h2>");
@@ -205,11 +212,14 @@ function scoreBuilder(){
     screen.find(".score").append("<ul class='text-center score-list'></ul>");
     
     screen.find(".score-list")
-      .append("<li class='score'><p>Correct Answers: </p><span id='right-score'></li>");
+      .append("<li class='score'><p>Correct Answers: </p><span id='right-score'>"+r+"</li>");
     screen.find(".score-list")
-      .append("<li class='score'><p>Incorrect Answers: </p><span id='wrong-score'></li>");
+      .append("<li class='score'><p>Incorrect Answers: </p><span id='wrong-score'>"+w+"</li>");
     screen.find(".score-list")
-      .append("<li class='score'><p>Unanswered: </p><span id='not-score'></li>");
+      .append("<li class='score'><p>Unanswered: </p><span id='not-score'>"+m+"</li>");
+
+    screen.find(".score-list")
+    .append("<a id='restart' class='btn btn-success btn-lg danger' role='button' href='#'>Restart</a>");
 
     $quiz.append(screen);
 }
