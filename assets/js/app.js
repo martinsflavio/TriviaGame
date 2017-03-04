@@ -12,14 +12,14 @@ var not = 0;
 //========== watch =========
 var intervalId;
 var watch = {
-  time: 3,
+  time: 10,
 
   start: function() {
     intervalId = setInterval(watch.count, 1000);
   },
   stop: function() {
     clearInterval(intervalId);
-    watch.time = 3;
+    watch.time = 10;
   },
   count: function() {
     watch.time--;
@@ -28,11 +28,12 @@ var watch = {
     //=======================
     if (watch.time === 0){
       watch.stop();
+      not++;
       if(questIndex === quizArr.length - 1){
         $($quiz).empty();
         scoreBuilder(right, wrong, not);
-      }else{
-        not++;
+      }else{  
+        console.log(not);
         watch.stop();
         $($quiz).empty();
         questIndex++;
@@ -126,11 +127,11 @@ function quizArrConstructor(){
 
   var result=[];
   // Add question here 
-  result.push(questionEntry("question 01",["correto","resposta2","resposta3","resposta4"],0)); 
-  result.push(questionEntry("question 02",["resposta1","resposta2","correto","resposta4"],2)); 
-  result.push(questionEntry("question 03",["resposta1","correto","resposta3","resposta4"],1));
-  result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","correto"],3)); 
-  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","correto"],3));  
+  result.push(questionEntry("What is the biggest city in the world?",["Tokyo - Japan","Jakarta - Indonesia","Delhi - India"],0)); 
+  result.push(questionEntry("The Next 4 digitis of Phi 3.141...",["...5927...","...6534...","...5926...","...7834..."],2)); 
+  result.push(questionEntry("How many planets are in the solar system?",["9","8"],1));
+  result.push(questionEntry("The most populated country in the world?",["Russia","India","China"],2)); 
+  result.push(questionEntry("How old is the universe?",["11.772 billion years","14.772 billion years","12.772 billion years","13.772 billion years"],3));  
   //--------------------
   return result;
 }
@@ -171,6 +172,8 @@ function printAnswer(value,qIndex){
 
   watch.stop();
 }
+
+
 //-------------------- Screens ----------------------
 function startBuilder(){
   var screen = $("<div class=jumbotron>");
