@@ -1,27 +1,18 @@
 /*Watch ID holder*/
 var intervalId;
 var watch = {
-
-  timesUp: false,
   time: 10,
-  totalCalls: 0,
 
   start: function() {
-    watch.timesUp = false;
     intervalId = setInterval(watch.count, 1000);
   },
   stop: function() {
     clearInterval(intervalId);
-    watch.timesUp = true;
     watch.time = 10;
-    watch.totalCalls++;
   },
   count: function() {
     watch.time--;
     var converted = watch.timeConverter(watch.time);
-    if (watch.time === 0){
-      watch.stop();
-    }
     $("#timer").text(converted);
   },
   timeConverter: function(t) {
@@ -52,7 +43,7 @@ var $quiz = $(".quiz");
 var userAnswer = 0;
 var questIndex = 0;
 var answer = "";
-var right = -1; 
+var right = 0; 
 var wrong = 0;
 var not = 0;
 //  Why right = -1 ?
@@ -63,23 +54,24 @@ var not = 0;
 $(window).load(function(){
   
   startBuilder(quizArr[questIndex]);
+
+  $($quiz).on("click", "#start", function(){
+    $($quiz).empty();
+    questionBuilder(quizArr[0]);
+  });
+
   $($quiz).on("click", ".answer-btn", function(){
-    userAnswer = parseInt($(this).attr("id"));
-  
-    answer = checkanswer(quizArr[questIndex],userAnswer);
     
-    if(answer === "right" ){
+    userAnswer = parseInt($(this).attr("id"));
+    answer = checkanswer(quizArr[questIndex],userAnswer);
+
+    if (answer === "right"){
       right++;
     }
-    if (answer === "wrong" ){
+    if (answer === "wrong"){
       wrong++;
     }
-    if (answer === "not" ){
-      not++;
-    }
-
     printAnswer(answer, questIndex);
-    
     setTimeout(function(){ 
       $quiz.empty();
       // print score
@@ -87,24 +79,23 @@ $(window).load(function(){
         $($quiz).empty();
         scoreBuilder(right, wrong, not);
       }else{
+        $($quiz).empty();
         questIndex++;
         questionBuilder(quizArr[questIndex]);
-      }
-      
+      }  
     },1000);
   });
 
   $($quiz).on("click", "#restart", function(){
     $($quiz).empty();
     
-    userAnswer = -1;
+    userAnswer = 0;
     questIndex = 0;
     answer = "";
-    right = -1; 
+    right = 0; 
     wrong = 0;
     not = 0;
-
-    startBuilder(quizArr[questIndex]);
+    startBuilder();
   });
 
 });
@@ -123,8 +114,7 @@ function quizArrConstructor(){
   }
 
   var result=[];
-  // Add question here
-  result.push(questionEntry("Trivia Quiz!",["Start"],0)); 
+  // Add question here 
   result.push(questionEntry("question 01",["correto","resposta2","resposta3","resposta4"],0)); 
   result.push(questionEntry("question 02",["resposta1","resposta2","correto","resposta4"],2)); 
   result.push(questionEntry("question 03",["resposta1","correto","resposta3","resposta4"],1));
@@ -135,10 +125,7 @@ function quizArrConstructor(){
 }
 //---------------------------------------------------
 function checkanswer(qObj,answer){
-  var totalAlternativas = qObj.alternatives.length;
-
-  // no answer detected
-
+  
   if (answer === qObj.answerIndex){
     console.log("right");
     return "right";
@@ -163,23 +150,23 @@ function printAnswer(value,qIndex){
     image = "r";
     message = "Congratulations Right Answer!";
   }
- /* if (value === "not"){
-    return;
-  }*/
  
   result.append("<img src='./assets/images/"+image+".png'>");
   result.append("<h3>"+message+"</h3>");
   $ans.empty();
   $(".answer").append(result);
+
+
+
+  watch.stop();
 }
 //-------------------- Screens ----------------------
-function startBuilder(qObj){
-  var startIndex = qObj.alternatives.indexOf("Start");
+function startBuilder(){
   var screen = $("<div class=jumbotron>");
-    screen.append("<h1 class='text-center'>"+qObj.question+"</h1>");
+    screen.append("<h1 class='text-center'>Trivia Quiz!</h1>");
     screen.append("<p class='p text-center'>");
     screen.find(".p")
-      .append("<a id="+startIndex+" class='answer-btn btn btn-success btn-lg primay' role='button' href='#'>"+qObj.alternatives+"</a>");
+      .append("<a id='start' class='btn btn-success btn-lg primay' role='button' href='#'>Start</a>");
 
     $quiz.append(screen);
 }
@@ -203,6 +190,7 @@ function questionBuilder(qObj){
 
     $(".answer-list").append(answerBtn);
   }
+  watch.start();
 }
 function scoreBuilder(r,w,m){
   var screen = $("<div class=jumbotron>");
