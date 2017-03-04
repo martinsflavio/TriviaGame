@@ -46,37 +46,63 @@ var watch = {
 /*------------------------------------*/
 
 //Question and Anwsers
-var quiz = quizConstructor();
+var quizArr = quizArrConstructor();
 //$$uery to Variables
-var $$ = btnLink();
+var $$ = jQueryVar();
 
+// trackers
+var quiz;
+var awsId = 0;
+var nextQuestion = 0;
 //================= Logic ===========================
 
-
 $(window).load(function(){
-  //Star button event
+  //Starts the Quiz
   $$.$start.on("click", function(){
-    watch.start();
-    screenSelector("start");
+    screenSelector("question");
+    
+    //$$.$awsList.trigger("click");    
   });
 
-  //
+  //Stores the user Anwser on variable "awsId"
+  $$.$awsList.on("click",".aws-btn", function(){
+    awsId = parseInt($(this).attr("id"));
+    quiz = quizArr[nextQuestion];
+    nextQuestion++;
+    console.log("deu certo ");
 
+  }); 
+
+
+/*
+  if (trigger){
+
+    if(checkAws(quiz,awsId)){
+      // correto 
+      //carrega porxima pergunta
+    }else{
+      //errado
+      //carrega proxima pergunta
+
+    }    
+  }else{
+    
+    setTimeout(function(){
+
+      //nextQuestion
+
+    },10100);
+  }*/
 
 
 
 });
 
 
-
-
-
-
-
-
 //================= functions =======================
 //------ pass $() elements to variables ------
-function btnLink(){
+function jQueryVar(){
+  var $aws;
   return{
     /*Start Screen $() elements*/
     $start: $("#start"),
@@ -85,18 +111,17 @@ function btnLink(){
     $timer: $("#timer"),
     $quest: $("#quest"),
     $awsList: $(".aws-list"),
-    $aws: "",
+    $aws: $aws,
     /*Score Screen $() elements*/ 
     $restart: $("#restart"),
     /*screens*/
     $startScreen: $(".start"),
     $questionScreen: $(".question"),
     $scoreScreen: $(".score"),
-
   };
 }
-//------ populate the quiz array with objs questions ------
-function quizConstructor(){
+//------ populate the quizArr array with objs questions ------
+function quizArrConstructor(){
   function questionEntry(question, alternatives, awsIndex){
     return{
       question: question,
@@ -132,23 +157,34 @@ function screenSelector(screen){
     $$.$scoreScreen.show();
   }
 }
-//------ Load Question ---- quiz[index] -------                          
+//------ Load Question ---- quizArr[index] -------                          
 function questionBuilder(qObj){
   /*display question*/
   $$.$quest.text(qObj.question);
   /*building buttons with alternatives*/
-  for (var i = 0; i<qObj.alternatives.length; i++){
+  for (var i = 0; i < qObj.alternatives.length; i++){
     var alternative = qObj.alternatives[i];  
     var $optionBtn = $("<li>");
     $optionBtn.append("<a id="+i+" class='aws-btn btn btn-primary btn-lg primay' role='button' href='#'>");
     $optionBtn.find("#"+i).text(alternative);
+
     //store the button on the obj
     $$.$aws = $optionBtn;
     //display in the screen
     $$.$awsList.append($$.$aws);
   }
 }
-//
+//---------------- Check Anwser -------------------
+function checkAws(qObj,userAws){
+  console.log("checkAws");
+  if (userAws === qObj.awsIndex){
+    console.log("right");
+    return true;
+  }else{
+    console.log("wrong");
+    return false;
+  } 
+}
 
 
 
