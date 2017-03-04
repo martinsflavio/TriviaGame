@@ -62,8 +62,10 @@ $(window).load(function(){
     userAnswer = parseInt($(this).attr("id"));
     
     answer = checkanswer(quizArr[questIndex],userAnswer);
-    
+    printAnswer(answer, questIndex);
+    $($quiz).empty();
     questIndex++;
+    questionBuilder(quizArr[questIndex]);
 
   });
 
@@ -73,7 +75,7 @@ $(window).load(function(){
 
 //================= functions =======================
 
-//------ populate the quizArr array with objs questions ------
+//---------------------------------------------------
 function quizArrConstructor(){
   function questionEntry(question, alternatives, answerIndex){
     return{
@@ -86,13 +88,15 @@ function quizArrConstructor(){
   var result=[];
   // Add question here
   result.push(questionEntry("Trivia Quiz!",["Start"],0)); 
-  result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],1)); 
-  result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],2)); 
+  result.push(questionEntry("question 01",["resposta1","resposta2","resposta3","resposta4"],1)); 
+  result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],2)); 
+  result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],4));
   result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","resposta4"],4)); 
+  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","resposta4"],4));  
   //--------------------
   return result;
 }
-//---------------- Check answerser -------------------
+//---------------------------------------------------
 function checkanswer(qObj,answer){
   
   if (answer === qObj.answerIndex){
@@ -103,7 +107,30 @@ function checkanswer(qObj,answer){
     return false;
   } 
 }
-//-------------------- Screens -----------------
+//---------------------------------------------------
+function printAnswer(value,qIndex){
+  var $ans = $(".answer");
+  var result = $("<div id='wrong'>");
+  var image = "", message = "";
+  
+  if (value){
+    image = "wrong";
+    message = "Sorry Wrong Answer!";
+  }else if(value && qIndex > 0){
+    image = "right";
+    message = "Congratulations Right Answer!";
+  }else{
+    return;
+  }
+    
+  result.append("<img src='./assets/images/"+image+".png'>");
+  result.append("<h3>"+message+"</h3>");
+  $ans.empty();
+  $(".answer").append(result);
+}
+
+
+//-------------------- Screens ----------------------
 function startBuilder(qObj){
   var startIndex = qObj.alternatives.indexOf("Start");
   var screen = $("<div class=jumbotron>");
@@ -151,7 +178,7 @@ function scoreBuilder(){
 
     $quiz.append(screen);
 }
-//----------------------------------------------
+//---------------------------------------------------
 
 
 
