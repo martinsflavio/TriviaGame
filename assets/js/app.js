@@ -52,25 +52,30 @@ var $$ = jQueryVar();
 
 // trackers
 var quiz;
-var awsId = 0;
-var nextQuestion = 0;
+var awsId = -1;
+var nextQuestion = -1;
 //================= Logic ===========================
 
 $(window).load(function(){
-  //Starts the Quiz
+  if (nextQuestion === -1){
+    screenSelector("start");  
+  }
+  
   $$.$start.on("click", function(){
+    nextQuestion++;
+    quiz = quizArr[nextQuestion];
+    questionBuilder(quiz);
     screenSelector("question");
-    
-    //$$.$awsList.trigger("click");    
   });
 
   //Stores the user Anwser on variable "awsId"
-  $$.$awsList.on("click",".aws-btn", function(){
+  $$.$awsList.on("click", ".aws-btn", function(){
     awsId = parseInt($(this).attr("id"));
-    quiz = quizArr[nextQuestion];
+    
+    checkAws(quiz,awsId); 
+    console.log("question checked " + nextQuestion);
     nextQuestion++;
-    console.log("deu certo ");
-
+    quiz = quizArr[nextQuestion];
   }); 
 
 
@@ -179,10 +184,10 @@ function checkAws(qObj,userAws){
   console.log("checkAws");
   if (userAws === qObj.awsIndex){
     console.log("right");
-    return true;
+    
   }else{
     console.log("wrong");
-    return false;
+    
   } 
 }
 
