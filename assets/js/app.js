@@ -49,9 +49,15 @@ var quizArr = quizArrConstructor();
 var $quiz = $(".quiz");
 
 // trackers
-var userAnswer = 0;
+var userAnswer = -1;
 var questIndex = 0;
-var answer = false;
+var answer = "";
+var right = -1; 
+var wrong = 0;
+var missed = 0;
+//  Why right = -1 ?
+//  first time the right is true doesn't count because 
+//  button start is the first right answer.
 //================= Logic ===========================
 
 $(window).load(function(){
@@ -62,10 +68,28 @@ $(window).load(function(){
     userAnswer = parseInt($(this).attr("id"));
     
     answer = checkanswer(quizArr[questIndex],userAnswer);
+    
+    if(answer === "right" ){
+      right++;
+    }
+    if (answer === "wrong" ){
+      wrong++;
+    }
+    if (answer === "not" ){
+      missed++;
+    }
+
     printAnswer(answer, questIndex);
-    $($quiz).empty();
-    questIndex++;
-    questionBuilder(quizArr[questIndex]);
+    setTimeout(function(){ 
+      $($quiz).empty(); 
+
+      questIndex++;
+
+      questionBuilder(quizArr[questIndex]);
+    },2000);
+    
+    
+
 
   });
 
@@ -88,41 +112,52 @@ function quizArrConstructor(){
   var result=[];
   // Add question here
   result.push(questionEntry("Trivia Quiz!",["Start"],0)); 
-  result.push(questionEntry("question 01",["resposta1","resposta2","resposta3","resposta4"],1)); 
-  result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],2)); 
-  result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],4));
-  result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","resposta4"],4)); 
-  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","resposta4"],4));  
+  result.push(questionEntry("question 01",["resposta1","resposta2","resposta3","resposta4"],0)); 
+  result.push(questionEntry("question 02",["resposta1","resposta2","resposta3","resposta4"],0)); 
+  result.push(questionEntry("question 03",["resposta1","resposta2","resposta3","resposta4"],0));
+  result.push(questionEntry("question 04",["resposta1","resposta2","resposta3","resposta4"],0)); 
+  result.push(questionEntry("question 05",["resposta1","resposta2","resposta3","resposta4"],3));  
   //--------------------
   return result;
 }
 //---------------------------------------------------
 function checkanswer(qObj,answer){
-  
+  var totalAlternativas = qObj.alternatives.length - 1;
+
+  // no answer detected
+  if (answer === -1){
+    return "not";
+  }
   if (answer === qObj.answerIndex){
     console.log("right");
-    return true;
-  }else{
-    console.log("wrong");
-    return false;
-  } 
+    return "right";
+  }
+  if (answer <= totalAlternativas && answer > 0 ){
+    if (answer !== qObj.answerIndex){
+      console.log("wrong");
+      return "wrong";
+    } 
+  }
 }
 //---------------------------------------------------
 function printAnswer(value,qIndex){
   var $ans = $(".answer");
-  var result = $("<div id='wrong'>");
-  var image = "", message = "";
+  var result = $("<div class='text-center'>");
+  var image = ""; 
+  var message = "";
   
-  if (value){
-    image = "wrong";
+  if (value === "wrong"){
+    image = "w";
     message = "Sorry Wrong Answer!";
-  }else if(value && qIndex > 0){
-    image = "right";
-    message = "Congratulations Right Answer!";
-  }else{
-    return;
   }
-    
+  if(value === "right"){
+    image = "r";
+    message = "Congratulations Right Answer!";
+  }
+ /* if (value === "not"){
+    return;
+  }*/
+ 
   result.append("<img src='./assets/images/"+image+".png'>");
   result.append("<h3>"+message+"</h3>");
   $ans.empty();
@@ -150,9 +185,9 @@ function questionBuilder(qObj){
     screen.find(".answer").append("<ul class='text-center answer-list'></ul>");
     $quiz.append(screen);  
 
-
   /*display question*/
   $("#quest").text(qObj.question);
+
   for (var i = 0; i < qObj.alternatives.length; i++){
     var alternative = qObj.alternatives[i];  
     var answerBtn = $("<li>");
